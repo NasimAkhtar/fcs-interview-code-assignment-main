@@ -8,13 +8,11 @@ import jakarta.enterprise.event.TransactionPhase;
 import jakarta.inject.Inject;
 
 @ApplicationScoped
-public class StoreCreatedListener {
-
+public class StoreUpdatedListener {
     @Inject
     LegacyStoreManagerGateway legacyStoreManagerGateway;
 
-    public void onStoreCreated(@Observes(during = TransactionPhase.AFTER_SUCCESS) Store store) {
-        legacyStoreManagerGateway.createStoreOnLegacySystem(store);
+    public void onStoreUpdated(@Observes(during = TransactionPhase.AFTER_SUCCESS) Store store) {
+        legacyStoreManagerGateway.updateStoreOnLegacySystem(store);
     }
-
 }

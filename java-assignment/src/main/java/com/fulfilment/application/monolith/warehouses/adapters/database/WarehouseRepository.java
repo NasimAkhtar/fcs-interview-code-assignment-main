@@ -14,7 +14,7 @@ public class WarehouseRepository implements WarehouseStore, PanacheRepository<Db
 
   @Override
   public List<Warehouse> getAll() {
-    return this.listAll().stream().map(DbWarehouse::toWarehouse).toList();
+    return this.listAll().stream().filter(dbWarehouse -> dbWarehouse.archivedAt == null).map(DbWarehouse::toWarehouse).toList();
   }
 
   @Override
@@ -44,7 +44,11 @@ public class WarehouseRepository implements WarehouseStore, PanacheRepository<Db
 
   @Override
   public Warehouse findByBusinessUnitCode(String buCode) {
-    DbWarehouse existing = find("businessUnitCode", buCode).firstResult();
-    return existing.toWarehouse();
+    DbWarehouse existing = find("businessUnitCode", buCode)
+            .stream()
+            .filter(dbWarehouse -> dbWarehouse.archivedAt == null)
+            .findFirst()
+            .orElse(null);
+    return existing == null ? null : existing.toWarehouse();
   }
 }

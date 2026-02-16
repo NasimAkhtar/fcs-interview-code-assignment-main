@@ -33,6 +33,9 @@ public class StoreResource {
   @Inject
   Event<Store> storeCreatedEvent;
 
+  @Inject
+  Event<Store> storeUpdatedEvent;
+
   private static final Logger LOGGER = Logger.getLogger(StoreResource.class.getName());
 
   @GET
@@ -81,7 +84,7 @@ public class StoreResource {
     entity.name = updatedStore.name;
     entity.quantityProductsInStock = updatedStore.quantityProductsInStock;
 
-    storeCreatedEvent.fire(updatedStore);
+    storeUpdatedEvent.fire(updatedStore);
 
     return entity;
   }
@@ -108,7 +111,7 @@ public class StoreResource {
       entity.quantityProductsInStock = updatedStore.quantityProductsInStock;
     }
 
-    storeCreatedEvent.fire(updatedStore);
+    storeUpdatedEvent.fire(updatedStore);
 
     return entity;
   }

@@ -1,8 +1,6 @@
 package com.fulfilment.application.monolith.warehouses.exceptions.mapper;
 
-import com.fulfilment.application.monolith.warehouses.exceptions.LocationNotFoundException;
-import com.fulfilment.application.monolith.warehouses.exceptions.WareHouseAlreadyExistException;
-import com.fulfilment.application.monolith.warehouses.exceptions.WarehouseNotFoundException;
+import com.fulfilment.application.monolith.warehouses.exceptions.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
@@ -11,15 +9,15 @@ import jakarta.ws.rs.ext.Provider;
 import org.jboss.logging.Logger;
 
 @Provider
-public class GlobalExceptionMapper implements ExceptionMapper<Throwable> {
+public class GlobalExceptionMapper implements ExceptionMapper<RuntimeException> {
 
-    private static final Logger LOG = Logger.getLogger(GlobalExceptionMapper.class);
+    private static final Logger LOGGER = Logger.getLogger(GlobalExceptionMapper.class);
 
     @Context
     UriInfo uriInfo;
 
     @Override
-    public Response toResponse(Throwable exception) {
+    public Response toResponse(RuntimeException exception) {
 
         if (exception instanceof WarehouseNotFoundException) {
             return buildResponse(
@@ -37,10 +35,37 @@ public class GlobalExceptionMapper implements ExceptionMapper<Throwable> {
             );
         }
 
+        if (exception instanceof WarehouseCapacityExceededException) {
+            return buildResponse(
+                    Response.Status.BAD_REQUEST,
+                    "WAREHOUSE_LOCATION_CAPACITY_EXCEEDED",
+                    exception.getMessage()
+            );
+        }
+
+        if (exception instanceof InvalidWarehouseStockException) {
+            return buildResponse(
+                    Response.Status.BAD_REQUEST,
+                    "WAREHOUSE_STOCK_CAPACITY_EXCEEDED",
+                    exception.getMessage()
+            );
+        }
+
+
+
         if (exception instanceof LocationNotFoundException) {
+            LOGGER.info("LocationNotFoundException");
             return buildResponse(
                     Response.Status.BAD_REQUEST,
                     "LOCATION_NOT_FOUND",
+                    exception.getMessage()
+            );
+        }
+
+        if (exception instanceof WarehouseAlreadyArchivedException) {
+            return buildResponse(
+                    Response.Status.BAD_REQUEST,
+                    "WAREHOUSE_ALREADY_ARCHIVED",
                     exception.getMessage()
             );
         }
@@ -54,7 +79,7 @@ public class GlobalExceptionMapper implements ExceptionMapper<Throwable> {
         }
 
         // 🔥 Fallback for unexpected errors
-        LOG.error("Unexpected error occurred", exception);
+        LOGGER.error("Unexpected error occurred", exception);
 
         return buildResponse(
                 Response.Status.INTERNAL_SERVER_ERROR,
