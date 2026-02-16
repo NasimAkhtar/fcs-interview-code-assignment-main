@@ -6,7 +6,10 @@
 **Task**: Discuss the challenges in accurately tracking and allocating costs in a fulfillment environment. Think about what are important considerations for this, what are previous experiences that you have you could related to this problem and elaborate some questions and considerations
 
 **Questions you may have and considerations:**
-[ fill here your answer ]
+Question: A Warehouse serves multiple Stores and A Store is served by multiple Warehouses. Fulfillment is shared. Labor and transport are shared. 
+Then how to choose the correct cost drivers to allocate shared costs fairly.
+Considerations:
+Cost per order,Cost per SKU,Cost per store served,Labor cost per line picked,Transport cost per km
 
 ## Scenario 2: Cost Optimization Strategies
 **Situation**: The company wants to identify and implement cost optimization strategies for its fulfillment operations. The goal is to reduce overall costs without compromising service quality.
@@ -14,7 +17,10 @@
 **Task**: Discuss potential cost optimization strategies for fulfillment operations and expected outcomes from that. How would you identify, prioritize and implement these strategies?
 
 **Questions you may have and considerations:**
-[ fill here your answer ]
+Questions:
+Where optimization opportunities exist. How to identify, prioritize, and implement them?
+Consideration:
+Labor Optimization, Inventory Optimization,Transportation Optimization, Network & Infrastructure Optimization
 
 ## Scenario 3: Integration with Financial Systems
 **Situation**: The Cost Control Tool needs to integrate with existing financial systems to ensure accurate and timely cost data. The integration should support real-time data synchronization and reporting.
@@ -22,7 +28,7 @@
 **Task**: Discuss the importance of integrating the Cost Control Tool with financial systems. What benefits the company would have from that and how would you ensure seamless integration and data synchronization?
 
 **Questions you may have and considerations:**
-[ fill here your answer ]
+Benefits of Integration: Financial Accuracy & Reconciliation, Real-Time Cost Visibility,Budget Monitoring & Forecasting, Strategic Decision Support, Audit & Compliance
 
 ## Scenario 4: Budgeting and Forecasting
 **Situation**: The company needs to develop budgeting and forecasting capabilities for its fulfillment operations. The goal is to predict future costs and allocate resources effectively.
@@ -30,7 +36,7 @@
 **Task**: Discuss the importance of budgeting and forecasting in fulfillment operations and what would you take into account designing a system to support accurate budgeting and forecasting?
 
 **Questions you may have and considerations:**
-[ fill here your answer ]
+Good forecasting enables:Capacity planning,Workforce planning,Inventory planning,Transport planning,Capital investment decisions
 
 ## Scenario 5: Cost Control in Warehouse Replacement
 **Situation**: The company is planning to replace an existing Warehouse with a new one. The new Warehouse will reuse the Business Unit Code of the old Warehouse. The old Warehouse will be archived, but its cost history must be preserved.
@@ -38,7 +44,8 @@
 **Task**: Discuss the cost control aspects of replacing a Warehouse. Why is it important to preserve cost history and how this relates to keeping the new Warehouse operation within budget?
 
 **Questions you may have and considerations:**
-[ fill here your answer ]
+Cost Control Aspects of Replacing a Warehouse: Capital expenditure (CAPEX),Transition costs,Migration costs,Temporary dual operations,Write-offs,Depreciation changes,Workforce restructuring,
+Importance of Cost Control Audit: Financial Traceability, Performance Benchmarking,Budget Continuity
 
 ## Instructions for Candidates
 Before starting the case study, read the [BRIEFING.md](BRIEFING.md) to quickly understand the domain, entities, business rules, and other relevant details.
