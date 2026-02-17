@@ -9,16 +9,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:13.3
-        ports:
-          - 15432:5432
-        env:
-          POSTGRES_DB: quarkus_test
-          POSTGRES_USER: quarkus_test
-          POSTGRES_PASSWORD: quarkus_test
     steps:
+    - name: Set Docker API version
+      run: echo "api.version=1.44" >> ~/.docker-java.properties
+      shell: bash
     - uses: actions/checkout@v4
     - name: Set up JDK 11
       uses: actions/setup-java@v4
