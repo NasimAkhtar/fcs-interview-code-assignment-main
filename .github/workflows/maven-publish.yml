@@ -9,9 +9,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    services:
-      docker:
-        image: docker:24-dind
+    container:
+      image: maven:3.9.6
+      options: --privileged
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
     permissions:
       contents: read
       packages: write
