@@ -9,14 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: maven:3.9.6
-      options: --privileged
-      volumes:
-        - /var/run/docker.sock:/var/run/docker.sock
-    permissions:
-      contents: read
-      packages: write
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 11
