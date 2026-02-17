@@ -9,6 +9,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:13.3
+        ports:
+          - 15432:5432
+        env:
+          POSTGRES_DB: quarkus_test
+          POSTGRES_USER: quarkus_test
+          POSTGRES_PASSWORD: quarkus_test
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 11
