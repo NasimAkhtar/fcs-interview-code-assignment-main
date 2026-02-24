@@ -18,7 +18,7 @@ class FulfilmentResourceTest {
     @InjectMock
     FulfilmentService service;
 
-    //@Test
+    @Test
     void shouldAssignWarehouseSuccessfully() {
 
         String body = """
@@ -42,10 +42,10 @@ class FulfilmentResourceTest {
         );
     }
 
-    //@Test
-    void shouldReturnBadRequestWhenLimitExceeded() {
+    @Test
+    void shouldReturnBadRequestWhenProductLimitExceeded() {
 
-        doThrow(new RuntimeException("Limit exceeded"))
+        doThrow(new com.fulfilment.application.monolith.fulfillments.exceptions.ProductFulfilmentLimitExceededException("Product limit exceeded"))
                 .when(service)
                 .assignWarehouseToProductAndStore(anyString(), anyString(), anyString());
 
@@ -63,6 +63,54 @@ class FulfilmentResourceTest {
                 .when()
                 .post("/fulfilment")
                 .then()
-                .statusCode(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenStoreLimitExceeded() {
+
+        doThrow(new com.fulfilment.application.monolith.fulfillments.exceptions.StoreFulfilmentLimitExceededException("Store limit exceeded"))
+                .when(service)
+                .assignWarehouseToProductAndStore(anyString(), anyString(), anyString());
+
+        String body = """
+            {
+              "productCode": "P1",
+              "storeCode": "S1",
+              "warehouseCode": "W1"
+            }
+        """;
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(body)
+                .when()
+                .post("/fulfilment")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenWarehouseProductLimitExceeded() {
+
+        doThrow(new com.fulfilment.application.monolith.fulfillments.exceptions.WarehouseProductLimitExceededException("Warehouse product limit exceeded"))
+                .when(service)
+                .assignWarehouseToProductAndStore(anyString(), anyString(), anyString());
+
+        String body = """
+            {
+              "productCode": "P1",
+              "storeCode": "S1",
+              "warehouseCode": "W1"
+            }
+        """;
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(body)
+                .when()
+                .post("/fulfilment")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
     }
 }

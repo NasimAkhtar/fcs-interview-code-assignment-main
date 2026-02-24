@@ -1,5 +1,6 @@
 package com.fulfilment.application.monolith.warehouses.exceptions.mapper;
 
+import com.fulfilment.application.monolith.fulfillments.exceptions.*;
 import com.fulfilment.application.monolith.warehouses.exceptions.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
@@ -66,6 +67,30 @@ public class GlobalExceptionMapper implements ExceptionMapper<RuntimeException> 
             return buildResponse(
                     Response.Status.BAD_REQUEST,
                     "WAREHOUSE_ALREADY_ARCHIVED",
+                    exception.getMessage()
+            );
+        }
+
+        if (exception instanceof ProductFulfilmentLimitExceededException) {
+            return buildResponse(
+                    Response.Status.BAD_REQUEST,
+                    "PRODUCT_FULFILMENT_LIMIT_EXCEEDED",
+                    exception.getMessage()
+            );
+        }
+
+        if (exception instanceof StoreFulfilmentLimitExceededException) {
+            return buildResponse(
+                    Response.Status.BAD_REQUEST,
+                    "STORE_FULFILMENT_LIMIT_EXCEEDED",
+                    exception.getMessage()
+            );
+        }
+
+        if (exception instanceof WarehouseProductLimitExceededException) {
+            return buildResponse(
+                    Response.Status.BAD_REQUEST,
+                    "WAREHOUSE_PRODUCT_LIMIT_EXCEEDED",
                     exception.getMessage()
             );
         }
