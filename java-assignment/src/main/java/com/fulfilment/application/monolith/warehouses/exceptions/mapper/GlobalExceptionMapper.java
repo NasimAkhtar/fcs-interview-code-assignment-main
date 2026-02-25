@@ -103,6 +103,14 @@ public class GlobalExceptionMapper implements ExceptionMapper<RuntimeException> 
             );
         }
 
+        if (exception instanceof IllegalArgumentException) {
+            return buildResponse(
+                    Response.Status.BAD_REQUEST,
+                    "INVALID_REQUEST",
+                    exception.getMessage()
+            );
+        }
+
         // 🔥 Fallback for unexpected errors
         LOGGER.error("Unexpected error occurred", exception);
 

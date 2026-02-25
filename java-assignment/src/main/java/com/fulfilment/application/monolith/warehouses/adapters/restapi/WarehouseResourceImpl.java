@@ -6,6 +6,7 @@ import com.fulfilment.application.monolith.warehouses.domain.usecases.ArchiveWar
 import com.fulfilment.application.monolith.warehouses.domain.usecases.CreateWarehouseUseCase;
 import com.fulfilment.application.monolith.warehouses.domain.usecases.ReplaceWarehouseUseCase;
 import com.fulfilment.application.monolith.warehouses.exceptions.*;
+import com.fulfilment.application.monolith.warehouses.utils.WarehousesValidator;
 import com.warehouse.api.WarehouseResource;
 import com.warehouse.api.beans.Warehouse;
 import jakarta.enterprise.context.RequestScoped;
@@ -29,6 +30,9 @@ public class WarehouseResourceImpl implements WarehouseResource {
 
   @Inject
   private ReplaceWarehouseUseCase replaceWarehouseUseCase;
+
+  @Inject
+  private WarehousesValidator warehousesValidator;
 
   private static final Logger LOGGER = Logger.getLogger(WarehouseResourceImpl.class.getName());
 
@@ -55,7 +59,6 @@ public class WarehouseResourceImpl implements WarehouseResource {
   public Warehouse createANewWarehouseUnit(@NotNull Warehouse data) {
     LOGGER.infof("Creating new warehouse with businessUnitCode=%s",
             data.getBusinessUnitCode());
-
     try {
       var domainWarehouse = fromWarehouse(data);
       createWarehouseUseCase.create(domainWarehouse);
@@ -72,7 +75,7 @@ public class WarehouseResourceImpl implements WarehouseResource {
   public Warehouse getAWarehouseUnitByID(String id) {
     LOGGER.debugf("Fetching warehouse by id=%s", id);
 
-    var existing = warehouseRepository.findById(Long.valueOf(id));
+    var existing = warehouseRepository.findById(warehousesValidator.parse(id));
 
     if (existing == null || existing.archivedAt != null) {
       LOGGER.warnf("Warehouse not found or archived for id=%s", id);
@@ -87,7 +90,7 @@ public class WarehouseResourceImpl implements WarehouseResource {
   public void archiveAWarehouseUnitByID(String id) {
     LOGGER.infof("Archiving warehouse id=%s", id);
 
-    var warehouse = warehouseRepository.findById(Long.valueOf(id));
+    var warehouse = warehouseRepository.findById(warehousesValidator.parse(id));
 
     if (warehouse == null) {
       LOGGER.warnf("Attempted to archive non-existing warehouse id=%s", id);

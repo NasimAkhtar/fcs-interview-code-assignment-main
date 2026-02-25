@@ -72,4 +72,15 @@ public class WarehousesValidator {
                             + warehouse.getBusinessUnitCode());
         }
     }
+
+    public Long parse(String id) {
+        long parsedId;
+        try {
+            parsedId = Long.parseLong(id);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid Request " + e.getMessage());
+        }
+        return parsedId;
+    }
+
 }
