@@ -5,7 +5,7 @@ import com.fulfilment.application.monolith.warehouses.domain.models.Location;
 import com.fulfilment.application.monolith.warehouses.domain.models.Warehouse;
 import com.fulfilment.application.monolith.warehouses.domain.ports.LocationResolver;
 import com.fulfilment.application.monolith.warehouses.domain.ports.WarehouseStore;
-import com.fulfilment.application.monolith.warehouses.utils.WarehousesUtils;
+import com.fulfilment.application.monolith.warehouses.utils.WarehousesValidator;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -33,7 +33,7 @@ class CreateWarehouseUseCaseTest {
     LocationResolver locationResolver;
 
     @InjectMock
-    WarehousesUtils warehousesUtils;
+    WarehousesValidator warehousesValidator;
 
     // ---------------------------------------------------------
     // 1️⃣ HAPPY PATH
@@ -86,7 +86,7 @@ class CreateWarehouseUseCaseTest {
                 .thenReturn(existing);
 
         doThrow(new IllegalStateException("Warehouse exists"))
-                .when(warehousesUtils)
+                .when(warehousesValidator)
                 .checkIfWarehouseExists(warehouse, existing);
 
         assertThrows(IllegalStateException.class,
@@ -112,7 +112,7 @@ class CreateWarehouseUseCaseTest {
                 .thenReturn(null);
 
         doThrow(new IllegalArgumentException("Location not found"))
-                .when(warehousesUtils)
+                .when(warehousesValidator)
                 .checkIfLocationExists(warehouse, null);
 
         assertThrows(IllegalArgumentException.class,
@@ -142,7 +142,7 @@ class CreateWarehouseUseCaseTest {
                 .thenReturn(10L);
 
         doThrow(new IllegalStateException("Too many warehouses"))
-                .when(warehousesUtils)
+                .when(warehousesValidator)
                 .checkIfWarehouseCanBeCreatedAtLocation(
                         eq(warehouse),
                         eq(10L),
@@ -173,7 +173,7 @@ class CreateWarehouseUseCaseTest {
                 .thenReturn(location);
 
         doThrow(new IllegalArgumentException("Location max capacity exceeded"))
-                .when(warehousesUtils)
+                .when(warehousesValidator)
                 .checkForLocationMaxNumberOfWarehouse(warehouse, location);
 
         assertThrows(IllegalArgumentException.class,
@@ -200,7 +200,7 @@ class CreateWarehouseUseCaseTest {
                 .thenReturn(location);
 
         doThrow(new IllegalArgumentException("Stock exceeds capacity"))
-                .when(warehousesUtils)
+                .when(warehousesValidator)
                 .checkForWarehouseCapacity(warehouse);
 
         assertThrows(IllegalArgumentException.class,

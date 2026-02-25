@@ -3,7 +3,7 @@ package com.fulfilment.application.monolith.warehouses.domain.usecases;
 import com.fulfilment.application.monolith.warehouses.domain.models.Warehouse;
 import com.fulfilment.application.monolith.warehouses.domain.ports.ReplaceWarehouseOperation;
 import com.fulfilment.application.monolith.warehouses.domain.ports.WarehouseStore;
-import com.fulfilment.application.monolith.warehouses.utils.WarehousesUtils;
+import com.fulfilment.application.monolith.warehouses.utils.WarehousesValidator;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.jboss.logging.Logger;
 
@@ -16,12 +16,12 @@ public class ReplaceWarehouseUseCase implements ReplaceWarehouseOperation {
 
   private final WarehouseStore warehouseStore;
 
-  private final WarehousesUtils warehousesUtils;
+  private final WarehousesValidator warehousesValidator;
 
   public ReplaceWarehouseUseCase(WarehouseStore warehouseStore,
-                                 WarehousesUtils warehousesUtils) {
+                                 WarehousesValidator warehousesValidator) {
     this.warehouseStore = warehouseStore;
-    this.warehousesUtils = warehousesUtils;
+    this.warehousesValidator = warehousesValidator;
   }
 
   @Override
@@ -37,15 +37,15 @@ public class ReplaceWarehouseUseCase implements ReplaceWarehouseOperation {
 
     // 1 Check if warehouse exist
     LOGGER.debug("Validating that active warehouse exists");
-    warehousesUtils.checkIfActiveWarehouseExists(newWarehouse, existing);
+    warehousesValidator.checkIfActiveWarehouseExists(newWarehouse, existing);
 
     // 2 Capacity accommodation validation
     LOGGER.debug("Validating capacity accommodation");
-    warehousesUtils.checkIfWarehouseHaveCapacity(newWarehouse, existing);
+    warehousesValidator.checkIfWarehouseHaveCapacity(newWarehouse, existing);
 
     // 3 Stock matching validation
     LOGGER.debug("Validating stock matching");
-    warehousesUtils.checkIfNewWareHouseHaveSameStocks(newWarehouse, existing);
+    warehousesValidator.checkIfNewWareHouseHaveSameStocks(newWarehouse, existing);
 
     // 4 Create new warehouse
     LOGGER.debugf("Creating new warehouse record for businessUnitCode=%s",

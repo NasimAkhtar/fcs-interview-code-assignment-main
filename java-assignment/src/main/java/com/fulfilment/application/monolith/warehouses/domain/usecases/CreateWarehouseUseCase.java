@@ -6,7 +6,7 @@ import com.fulfilment.application.monolith.warehouses.domain.models.Warehouse;
 import com.fulfilment.application.monolith.warehouses.domain.ports.CreateWarehouseOperation;
 import com.fulfilment.application.monolith.warehouses.domain.ports.LocationResolver;
 import com.fulfilment.application.monolith.warehouses.domain.ports.WarehouseStore;
-import com.fulfilment.application.monolith.warehouses.utils.WarehousesUtils;
+import com.fulfilment.application.monolith.warehouses.utils.WarehousesValidator;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.jboss.logging.Logger;
 
@@ -23,16 +23,16 @@ public class CreateWarehouseUseCase implements CreateWarehouseOperation {
 
   private final LocationResolver locationResolver;
 
-  private final WarehousesUtils warehousesUtils;
+  private final WarehousesValidator warehousesValidator;
 
   public CreateWarehouseUseCase(WarehouseStore warehouseStore,
                                 WarehouseRepository warehouseRepository,
                                 LocationResolver locationResolver,
-                                WarehousesUtils warehousesUtils) {
+                                WarehousesValidator warehousesValidator) {
     this.warehouseStore = warehouseStore;
     this.warehouseRepository = warehouseRepository;
     this.locationResolver = locationResolver;
-    this.warehousesUtils = warehousesUtils;
+    this.warehousesValidator = warehousesValidator;
   }
 
   @Override
@@ -47,14 +47,14 @@ public class CreateWarehouseUseCase implements CreateWarehouseOperation {
             .findByBusinessUnitCode(warehouse.getBusinessUnitCode());
 
     // 1 Warehouse can not be created with same business unit id
-    warehousesUtils.checkIfWarehouseExists(warehouse, exists);
+    warehousesValidator.checkIfWarehouseExists(warehouse, exists);
 
     // 2️⃣ Location Validation
     LOGGER.debugf("Resolving location: %s", warehouse.getLocation());
     Location location =
             locationResolver.resolveByIdentifier(warehouse.getLocation());
 
-    warehousesUtils.checkIfLocationExists(warehouse, location);
+    warehousesValidator.checkIfLocationExists(warehouse, location);
 
     // 3️⃣ Warehouse Creation Feasibility
     LOGGER.debugf("Checking warehouse creation feasibility at location: %s",
@@ -62,15 +62,15 @@ public class CreateWarehouseUseCase implements CreateWarehouseOperation {
     long warehousesAtLocation =
             warehouseRepository.count("location", warehouse.getLocation());
 
-    warehousesUtils.checkIfWarehouseCanBeCreatedAtLocation(warehouse, warehousesAtLocation, location);
+    warehousesValidator.checkIfWarehouseCanBeCreatedAtLocation(warehouse, warehousesAtLocation, location);
 
     // 4️⃣ Capacity must not exceed location maximum
     LOGGER.debug("Validating capacity against location maximum");
-    warehousesUtils.checkForLocationMaxNumberOfWarehouse(warehouse, location);
+    warehousesValidator.checkForLocationMaxNumberOfWarehouse(warehouse, location);
 
     // 5️⃣ Stock must fit within capacity
     LOGGER.debug("Validating stock capacity");
-    warehousesUtils.checkForWarehouseCapacity(warehouse);
+    warehousesValidator.checkForWarehouseCapacity(warehouse);
 
     // if all went well, create the warehouse
     LOGGER.infof("All validations passed. Creating warehouse: %s",

@@ -2,7 +2,7 @@ package com.fulfilment.application.monolith.warehouses.domain.usecases;
 
 import com.fulfilment.application.monolith.warehouses.domain.models.Warehouse;
 import com.fulfilment.application.monolith.warehouses.domain.ports.WarehouseStore;
-import com.fulfilment.application.monolith.warehouses.utils.WarehousesUtils;
+import com.fulfilment.application.monolith.warehouses.utils.WarehousesValidator;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -24,7 +24,7 @@ class ReplaceWarehouseUseCaseTest {
     WarehouseStore warehouseStore;
 
     @InjectMock
-    WarehousesUtils warehousesUtils;
+    WarehousesValidator warehousesValidator;
 
     // ---------------------------------------------------------
     // 1️⃣ HAPPY PATH
@@ -77,7 +77,7 @@ class ReplaceWarehouseUseCaseTest {
                 .thenReturn(null);
 
         doThrow(new IllegalStateException("Active warehouse not found"))
-                .when(warehousesUtils)
+                .when(warehousesValidator)
                 .checkIfActiveWarehouseExists(newWarehouse, null);
 
         assertThrows(IllegalStateException.class,
@@ -102,7 +102,7 @@ class ReplaceWarehouseUseCaseTest {
                 .thenReturn(existing);
 
         doThrow(new IllegalArgumentException("Capacity invalid"))
-                .when(warehousesUtils)
+                .when(warehousesValidator)
                 .checkIfWarehouseHaveCapacity(newWarehouse, existing);
 
         assertThrows(IllegalArgumentException.class,
@@ -127,7 +127,7 @@ class ReplaceWarehouseUseCaseTest {
                 .thenReturn(existing);
 
         doThrow(new IllegalArgumentException("Stock mismatch"))
-                .when(warehousesUtils)
+                .when(warehousesValidator)
                 .checkIfNewWareHouseHaveSameStocks(newWarehouse, existing);
 
         assertThrows(IllegalArgumentException.class,
@@ -187,9 +187,9 @@ class ReplaceWarehouseUseCaseTest {
 
         replaceWarehouseUseCase.replace(newWarehouse);
 
-        verify(warehousesUtils).checkIfActiveWarehouseExists(newWarehouse, existing);
-        verify(warehousesUtils).checkIfWarehouseHaveCapacity(newWarehouse, existing);
-        verify(warehousesUtils).checkIfNewWareHouseHaveSameStocks(newWarehouse, existing);
+        verify(warehousesValidator).checkIfActiveWarehouseExists(newWarehouse, existing);
+        verify(warehousesValidator).checkIfWarehouseHaveCapacity(newWarehouse, existing);
+        verify(warehousesValidator).checkIfNewWareHouseHaveSameStocks(newWarehouse, existing);
 
         verify(warehouseStore).create(newWarehouse);
         verify(warehouseStore).update(existing);

@@ -6,7 +6,7 @@ import com.fulfilment.application.monolith.warehouses.exceptions.*;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public class WarehousesUtils {
+public class WarehousesValidator {
     public void checkIfActiveWarehouseExists(Warehouse newWarehouse, Warehouse existing) {
         if (existing == null) {
             throw new WarehouseNotFoundException(
