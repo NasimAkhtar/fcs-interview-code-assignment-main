@@ -8,11 +8,14 @@ import com.fulfilment.application.monolith.warehouses.domain.ports.LocationResol
 import com.fulfilment.application.monolith.warehouses.domain.ports.WarehouseStore;
 import com.fulfilment.application.monolith.warehouses.utils.WarehousesUtils;
 import jakarta.enterprise.context.ApplicationScoped;
+import org.jboss.logging.Logger;
 
 import java.time.LocalDateTime;
 
 @ApplicationScoped
 public class CreateWarehouseUseCase implements CreateWarehouseOperation {
+
+  private static final Logger LOGGER = Logger.getLogger(CreateWarehouseUseCase.class.getName());
 
   private final WarehouseStore warehouseStore;
 
@@ -34,7 +37,12 @@ public class CreateWarehouseUseCase implements CreateWarehouseOperation {
 
   @Override
   public void create(Warehouse warehouse) {
+    LOGGER.infof("Starting creation of warehouse: businessUnitCode=%s, location=%s",
+            warehouse.getBusinessUnitCode(), warehouse.getLocation());
+
     // 1️⃣ Business Unit Code Verification
+    LOGGER.debugf("Checking if warehouse already exists for businessUnitCode=%s",
+            warehouse.getBusinessUnitCode());
     var exists = warehouseStore
             .findByBusinessUnitCode(warehouse.getBusinessUnitCode());
 
@@ -42,25 +50,34 @@ public class CreateWarehouseUseCase implements CreateWarehouseOperation {
     warehousesUtils.checkIfWarehouseExists(warehouse, exists);
 
     // 2️⃣ Location Validation
+    LOGGER.debugf("Resolving location: %s", warehouse.getLocation());
     Location location =
             locationResolver.resolveByIdentifier(warehouse.getLocation());
 
     warehousesUtils.checkIfLocationExists(warehouse, location);
 
     // 3️⃣ Warehouse Creation Feasibility
+    LOGGER.debugf("Checking warehouse creation feasibility at location: %s",
+            warehouse.getLocation());
     long warehousesAtLocation =
             warehouseRepository.count("location", warehouse.getLocation());
 
     warehousesUtils.checkIfWarehouseCanBeCreatedAtLocation(warehouse, warehousesAtLocation, location);
 
     // 4️⃣ Capacity must not exceed location maximum
+    LOGGER.debug("Validating capacity against location maximum");
     warehousesUtils.checkForLocationMaxNumberOfWarehouse(warehouse, location);
 
     // 5️⃣ Stock must fit within capacity
+    LOGGER.debug("Validating stock capacity");
     warehousesUtils.checkForWarehouseCapacity(warehouse);
 
     // if all went well, create the warehouse
+    LOGGER.infof("All validations passed. Creating warehouse: %s",
+            warehouse.getBusinessUnitCode());
     warehouse.setCreatedAt(LocalDateTime.now());
     warehouseStore.create(warehouse);
+    LOGGER.infof("Warehouse created successfully: %s",
+            warehouse.getBusinessUnitCode());
   }
 }

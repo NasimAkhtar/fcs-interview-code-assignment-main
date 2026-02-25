@@ -46,8 +46,8 @@ public class DbWarehouse {
     entity.location = warehouse.getLocation();
     entity.capacity = warehouse.getCapacity();
     entity.stock = warehouse.getStock();
-    warehouse.createdAt = warehouse.getCreatedAt();
-    warehouse.archivedAt = warehouse.getArchivedAt();
+    entity.createdAt = warehouse.getCreatedAt();
+    entity.archivedAt = warehouse.getArchivedAt();
     return entity;
   }
 
