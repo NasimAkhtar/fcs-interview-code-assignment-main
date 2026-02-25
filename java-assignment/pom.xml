@@ -177,7 +177,7 @@
                         </goals>
                         <configuration>
                             <!-- Custom location for HTML reports -->
-                            <outputDirectory>${project.basedir}</outputDirectory>
+                            <outputDirectory>${project.basedir}/report</outputDirectory>
                         </configuration>
                     </execution>
 

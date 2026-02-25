@@ -60,7 +60,9 @@ public class CreateWarehouseUseCase implements CreateWarehouseOperation {
     LOGGER.debugf("Checking warehouse creation feasibility at location: %s",
             warehouse.getLocation());
     long warehousesAtLocation =
-            warehouseRepository.count("location", warehouse.getLocation());
+            warehouseRepository.count("location = ?1 and archivedAt is null", warehouse.getLocation());
+
+    LOGGER.debugf("Found %d active warehouses at location %s", warehousesAtLocation, warehouse.getLocation());
 
     warehousesValidator.checkIfWarehouseCanBeCreatedAtLocation(warehouse, warehousesAtLocation, location);
 

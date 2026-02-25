@@ -19,13 +19,8 @@ class WarehouseRepositoryTest {
     WarehouseRepository warehouseRepository;
 
     @BeforeEach
-    void setup() {
-        // No @TestTransaction here, but we need a transaction to delete
-        cleanDatabase();
-    }
-
     @jakarta.transaction.Transactional
-    void cleanDatabase() {
+    void setup() {
         warehouseRepository.deleteAll();
     }
 
