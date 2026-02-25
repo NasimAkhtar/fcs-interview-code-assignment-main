@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WarehouseResourceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java-code-assignment</a> &gt; <a href="index.source.html" class="el_package">com.fulfilment.application.monolith.warehouses.adapters.restapi</a> &gt; <span class="el_source">WarehouseResourceImpl.java</span></div><h1>WarehouseResourceImpl.java</h1><pre class="source lang-java linenums">package com.fulfilment.application.monolith.warehouses.adapters.restapi;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fulfilment.application.monolith.warehouses.adapters.database.WarehouseRepository;
+import com.fulfilment.application.monolith.warehouses.domain.usecases.ArchiveWarehouseUseCase;
+import com.fulfilment.application.monolith.warehouses.domain.usecases.CreateWarehouseUseCase;
+import com.fulfilment.application.monolith.warehouses.domain.usecases.ReplaceWarehouseUseCase;
+import com.fulfilment.application.monolith.warehouses.exceptions.*;
+import com.fulfilment.application.monolith.warehouses.utils.WarehousesValidator;
+import com.warehouse.api.WarehouseResource;
+import com.warehouse.api.beans.Warehouse;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.validation.constraints.NotNull;
+import org.jboss.logging.Logger;
+
+import java.util.List;
+
+@RequestScoped
+<span class="nc" id="L20">public class WarehouseResourceImpl implements WarehouseResource {</span>
+
+  @Inject
+  private WarehouseRepository warehouseRepository;
+
+  @Inject
+  private CreateWarehouseUseCase createWarehouseUseCase;
+
+  @Inject
+  private ArchiveWarehouseUseCase archiveWarehouseUseCase;
+
+  @Inject
+  private ReplaceWarehouseUseCase replaceWarehouseUseCase;
+
+  @Inject
+  private WarehousesValidator warehousesValidator;
+
+<span class="nc" id="L37">  private static final Logger LOGGER = Logger.getLogger(WarehouseResourceImpl.class.getName());</span>
+
+  @Override
+  public List&lt;Warehouse&gt; listAllWarehousesUnits() {
+<span class="nc" id="L41">    LOGGER.debug(&quot;Fetching all warehouse units&quot;);</span>
+    try {
+<span class="nc" id="L43">      var result = warehouseRepository</span>
+<span class="nc" id="L44">              .getAll()</span>
+<span class="nc" id="L45">              .stream()</span>
+<span class="nc" id="L46">              .map(this::toWarehouseResponse)</span>
+<span class="nc" id="L47">              .toList();</span>
+
+<span class="nc" id="L49">      LOGGER.infof(&quot;Successfully fetched %d warehouse units&quot;, result.size());</span>
+<span class="nc" id="L50">      return result;</span>
+
+<span class="nc" id="L52">    } catch (Exception ex) {</span>
+<span class="nc" id="L53">      LOGGER.error(&quot;Error while listing warehouse units&quot;, ex);</span>
+<span class="nc" id="L54">      throw ex;</span>
+    }
+  }
+
+  @Override
+  public Warehouse createANewWarehouseUnit(@NotNull Warehouse data) {
+<span class="nc" id="L60">    LOGGER.infof(&quot;Creating new warehouse with businessUnitCode=%s&quot;,</span>
+<span class="nc" id="L61">            data.getBusinessUnitCode());</span>
+    try {
+<span class="nc" id="L63">      var domainWarehouse = fromWarehouse(data);</span>
+<span class="nc" id="L64">      createWarehouseUseCase.create(domainWarehouse);</span>
+<span class="nc" id="L65">      LOGGER.info(&quot;Warehouse created successfully&quot;);</span>
+<span class="nc" id="L66">      return toWarehouseResponse(domainWarehouse);</span>
+
+<span class="nc" id="L68">    } catch (Exception ex) {</span>
+<span class="nc" id="L69">      LOGGER.error(&quot;Error while creating warehouse&quot;, ex);</span>
+<span class="nc" id="L70">      throw ex;</span>
+    }
+  }
+
+  @Override
+  public Warehouse getAWarehouseUnitByID(String id) {
+<span class="nc" id="L76">    LOGGER.debugf(&quot;Fetching warehouse by id=%s&quot;, id);</span>
+
+<span class="nc" id="L78">    var existing = warehouseRepository.findById(warehousesValidator.parse(id));</span>
+
+<span class="nc bnc" id="L80" title="All 4 branches missed.">    if (existing == null || existing.archivedAt != null) {</span>
+<span class="nc" id="L81">      LOGGER.warnf(&quot;Warehouse not found or archived for id=%s&quot;, id);</span>
+<span class="nc" id="L82">      throw new WarehouseNotFoundException(&quot;Warehouse not found: &quot; + id);</span>
+    }
+
+<span class="nc" id="L85">    LOGGER.infof(&quot;Warehouse found for id=%s&quot;, id);</span>
+<span class="nc" id="L86">    return toWarehouseResponse(existing.toWarehouse());</span>
+  }
+
+  @Override
+  public void archiveAWarehouseUnitByID(String id) {
+<span class="nc" id="L91">    LOGGER.infof(&quot;Archiving warehouse id=%s&quot;, id);</span>
+
+<span class="nc" id="L93">    var warehouse = warehouseRepository.findById(warehousesValidator.parse(id));</span>
+
+<span class="nc bnc" id="L95" title="All 2 branches missed.">    if (warehouse == null) {</span>
+<span class="nc" id="L96">      LOGGER.warnf(&quot;Attempted to archive non-existing warehouse id=%s&quot;, id);</span>
+<span class="nc" id="L97">      throw new WarehouseNotFoundException(&quot;Warehouse not found: &quot; + id);</span>
+    }
+
+<span class="nc" id="L100">    archiveWarehouseUseCase.archive(warehouse.toWarehouse());</span>
+<span class="nc" id="L101">    LOGGER.infof(&quot;Warehouse archived successfully id=%s&quot;, id);</span>
+<span class="nc" id="L102">  }</span>
+
+  @Override
+  public Warehouse replaceTheCurrentActiveWarehouse(
+          String businessUnitCode,
+          @NotNull Warehouse data) {
+
+<span class="nc" id="L109">    LOGGER.infof(&quot;Replacing warehouse for businessUnitCode=%s&quot;,</span>
+            businessUnitCode);
+
+    try {
+<span class="nc" id="L113">      replaceWarehouseUseCase.replace(fromWarehouse(data));</span>
+<span class="nc" id="L114">      LOGGER.info(&quot;Warehouse replaced successfully&quot;);</span>
+<span class="nc" id="L115">      return data;</span>
+
+<span class="nc" id="L117">    } catch (Exception ex) {</span>
+<span class="nc" id="L118">      LOGGER.error(&quot;Error while replacing warehouse&quot;, ex);</span>
+<span class="nc" id="L119">      throw ex;</span>
+    }
+  }
+
+
+  private Warehouse toWarehouseResponse(
+      com.fulfilment.application.monolith.warehouses.domain.models.Warehouse warehouse) {
+<span class="nc" id="L126">    var response = new Warehouse();</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">    response.setId(warehouse.id != null ? warehouse.id.toString() : null);</span>
+<span class="nc" id="L128">    response.setBusinessUnitCode(warehouse.businessUnitCode);</span>
+<span class="nc" id="L129">    response.setLocation(warehouse.location);</span>
+<span class="nc" id="L130">    response.setCapacity(warehouse.capacity);</span>
+<span class="nc" id="L131">    response.setStock(warehouse.stock);</span>
+<span class="nc" id="L132">    return response;</span>
+  }
+
+  private static com.fulfilment.application.monolith.warehouses.domain.models.Warehouse fromWarehouse(Warehouse data) {
+<span class="nc" id="L136">    ObjectMapper mapper = new ObjectMapper();</span>
+<span class="nc" id="L137">    return mapper.convertValue(data, com.fulfilment.application.monolith.warehouses.domain.models.Warehouse.class);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

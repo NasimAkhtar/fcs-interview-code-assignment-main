@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WarehousesValidator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java-code-assignment</a> &gt; <a href="index.source.html" class="el_package">com.fulfilment.application.monolith.warehouses.utils</a> &gt; <span class="el_source">WarehousesValidator.java</span></div><h1>WarehousesValidator.java</h1><pre class="source lang-java linenums">package com.fulfilment.application.monolith.warehouses.utils;
+
+import com.fulfilment.application.monolith.warehouses.domain.models.Location;
+import com.fulfilment.application.monolith.warehouses.domain.models.Warehouse;
+import com.fulfilment.application.monolith.warehouses.exceptions.*;
+import jakarta.enterprise.context.ApplicationScoped;
+
+@ApplicationScoped
+<span class="fc" id="L9">public class WarehousesValidator {</span>
+    public void checkIfActiveWarehouseExists(Warehouse newWarehouse, Warehouse existing) {
+<span class="pc bpc" id="L11" title="1 of 2 branches missed.">        if (existing == null) {</span>
+<span class="nc" id="L12">            throw new WarehouseNotFoundException(</span>
+<span class="nc" id="L13">                    &quot;Active warehouse not found: &quot; + newWarehouse.getBusinessUnitCode());</span>
+        }
+<span class="fc" id="L15">    }</span>
+
+    public void checkIfWarehouseHaveCapacity(Warehouse newWarehouse, Warehouse existing) {
+<span class="pc bpc" id="L18" title="1 of 2 branches missed.">        if (newWarehouse.getCapacity() &lt; existing.getStock()) {</span>
+<span class="nc" id="L19">            throw new WarehouseCapacityExceededException(</span>
+<span class="nc" id="L20">                    &quot;New warehouse capacity (&quot; + newWarehouse.getCapacity()</span>
+                            + &quot;) cannot accommodate existing stock (&quot;
+<span class="nc" id="L22">                            + existing.getStock() + &quot;)&quot;);</span>
+        }
+<span class="fc" id="L24">    }</span>
+
+    public void checkIfNewWareHouseHaveSameStocks(Warehouse newWarehouse, Warehouse existing) {
+<span class="pc bpc" id="L27" title="1 of 2 branches missed.">        if (!newWarehouse.getStock().equals(existing.getStock())) {</span>
+<span class="nc" id="L28">            throw new InvalidWarehouseStockException(</span>
+<span class="nc" id="L29">                    &quot;New warehouse stock (&quot; + newWarehouse.getStock()</span>
+                            + &quot;) must match existing stock (&quot;
+<span class="nc" id="L31">                            + existing.getStock() + &quot;)&quot;);</span>
+        }
+<span class="fc" id="L33">    }</span>
+
+    public void checkForWarehouseCapacity(Warehouse warehouse) {
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">        if (warehouse.getStock() &gt; warehouse.getCapacity()) {</span>
+<span class="nc" id="L37">            throw new InvalidWarehouseStockException(</span>
+<span class="nc" id="L38">                    &quot;Stock (&quot; + warehouse.getStock()</span>
+                            + &quot;) exceeds warehouse capacity (&quot;
+<span class="nc" id="L40">                            + warehouse.getCapacity() + &quot;)&quot;);</span>
+        }
+<span class="fc" id="L42">    }</span>
+
+    public void checkForLocationMaxNumberOfWarehouse(Warehouse warehouse, Location location) {
+<span class="fc bfc" id="L45" title="All 2 branches covered.">        if (warehouse.getCapacity() &gt; location.maxCapacity) {</span>
+<span class="fc" id="L46">            throw new WarehouseCapacityExceededException(</span>
+<span class="fc" id="L47">                    &quot;Warehouse capacity (&quot; + warehouse.getCapacity()</span>
+                            + &quot;) exceeds location maximum capacity (&quot;
+                            + location.maxCapacity + &quot;)&quot;);
+        }
+<span class="fc" id="L51">    }</span>
+
+    public void checkIfWarehouseCanBeCreatedAtLocation(Warehouse warehouse, long warehousesAtLocation, Location location) {
+<span class="fc bfc" id="L54" title="All 2 branches covered.">        if (warehousesAtLocation &gt;= location.maxNumberOfWarehouses) {</span>
+<span class="fc" id="L55">            throw new WarehouseCapacityExceededException(</span>
+                    &quot;Maximum warehouses reached for location: &quot;
+<span class="fc" id="L57">                            + warehouse.getLocation());</span>
+        }
+<span class="fc" id="L59">    }</span>
+
+    public void checkIfLocationExists(Warehouse warehouse, Location location) {
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        if (location == null) {</span>
+<span class="fc" id="L63">            throw new LocationNotFoundException(</span>
+<span class="fc" id="L64">                    &quot;Location not found: &quot; + warehouse.getLocation());</span>
+        }
+<span class="fc" id="L66">    }</span>
+
+    public void checkIfWarehouseExists(Warehouse warehouse, Warehouse exists) {
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">        if (exists != null) {</span>
+<span class="nc" id="L70">            throw new WareHouseAlreadyExistException(</span>
+                    &quot;Warehouse already exists with code: &quot;
+<span class="nc" id="L72">                            + warehouse.getBusinessUnitCode());</span>
+        }
+<span class="fc" id="L74">    }</span>
+
+    public Long parse(String id) {
+        long parsedId;
+        try {
+<span class="fc" id="L79">            parsedId = Long.parseLong(id);</span>
+<span class="fc" id="L80">        } catch (NumberFormatException e) {</span>
+<span class="fc" id="L81">            throw new IllegalArgumentException(&quot;Invalid Request &quot; + e.getMessage());</span>
+<span class="fc" id="L82">        }</span>
+<span class="fc" id="L83">        return parsedId;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

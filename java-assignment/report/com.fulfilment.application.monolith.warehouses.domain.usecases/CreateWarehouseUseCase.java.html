@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CreateWarehouseUseCase.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java-code-assignment</a> &gt; <a href="index.source.html" class="el_package">com.fulfilment.application.monolith.warehouses.domain.usecases</a> &gt; <span class="el_source">CreateWarehouseUseCase.java</span></div><h1>CreateWarehouseUseCase.java</h1><pre class="source lang-java linenums">package com.fulfilment.application.monolith.warehouses.domain.usecases;
+
+import com.fulfilment.application.monolith.warehouses.adapters.database.WarehouseRepository;
+import com.fulfilment.application.monolith.warehouses.domain.models.Location;
+import com.fulfilment.application.monolith.warehouses.domain.models.Warehouse;
+import com.fulfilment.application.monolith.warehouses.domain.ports.CreateWarehouseOperation;
+import com.fulfilment.application.monolith.warehouses.domain.ports.LocationResolver;
+import com.fulfilment.application.monolith.warehouses.domain.ports.WarehouseStore;
+import com.fulfilment.application.monolith.warehouses.utils.WarehousesValidator;
+import jakarta.enterprise.context.ApplicationScoped;
+import org.jboss.logging.Logger;
+
+import java.time.LocalDateTime;
+
+@ApplicationScoped
+public class CreateWarehouseUseCase implements CreateWarehouseOperation {
+
+<span class="nc" id="L18">  private static final Logger LOGGER = Logger.getLogger(CreateWarehouseUseCase.class.getName());</span>
+
+  private final WarehouseStore warehouseStore;
+
+  private final WarehouseRepository warehouseRepository;
+
+  private final LocationResolver locationResolver;
+
+  private final WarehousesValidator warehousesValidator;
+
+  public CreateWarehouseUseCase(WarehouseStore warehouseStore,
+                                WarehouseRepository warehouseRepository,
+                                LocationResolver locationResolver,
+<span class="nc" id="L31">                                WarehousesValidator warehousesValidator) {</span>
+<span class="nc" id="L32">    this.warehouseStore = warehouseStore;</span>
+<span class="nc" id="L33">    this.warehouseRepository = warehouseRepository;</span>
+<span class="nc" id="L34">    this.locationResolver = locationResolver;</span>
+<span class="nc" id="L35">    this.warehousesValidator = warehousesValidator;</span>
+<span class="nc" id="L36">  }</span>
+
+  @Override
+  public void create(Warehouse warehouse) {
+<span class="nc" id="L40">    LOGGER.infof(&quot;Starting creation of warehouse: businessUnitCode=%s, location=%s&quot;,</span>
+<span class="nc" id="L41">            warehouse.getBusinessUnitCode(), warehouse.getLocation());</span>
+
+    // 1️⃣ Business Unit Code Verification
+<span class="nc" id="L44">    LOGGER.debugf(&quot;Checking if warehouse already exists for businessUnitCode=%s&quot;,</span>
+<span class="nc" id="L45">            warehouse.getBusinessUnitCode());</span>
+<span class="nc" id="L46">    var exists = warehouseStore</span>
+<span class="nc" id="L47">            .findByBusinessUnitCode(warehouse.getBusinessUnitCode());</span>
+
+    // 1 Warehouse can not be created with same business unit id
+<span class="nc" id="L50">    warehousesValidator.checkIfWarehouseExists(warehouse, exists);</span>
+
+    // 2️⃣ Location Validation
+<span class="nc" id="L53">    LOGGER.debugf(&quot;Resolving location: %s&quot;, warehouse.getLocation());</span>
+<span class="nc" id="L54">    Location location =</span>
+<span class="nc" id="L55">            locationResolver.resolveByIdentifier(warehouse.getLocation());</span>
+
+<span class="nc" id="L57">    warehousesValidator.checkIfLocationExists(warehouse, location);</span>
+
+    // 3️⃣ Warehouse Creation Feasibility
+<span class="nc" id="L60">    LOGGER.debugf(&quot;Checking warehouse creation feasibility at location: %s&quot;,</span>
+<span class="nc" id="L61">            warehouse.getLocation());</span>
+<span class="nc" id="L62">    long warehousesAtLocation =</span>
+<span class="nc" id="L63">            warehouseRepository.count(&quot;location = ?1 and archivedAt is null&quot;, warehouse.getLocation());</span>
+
+<span class="nc" id="L65">    LOGGER.debugf(&quot;Found %d active warehouses at location %s&quot;, warehousesAtLocation, warehouse.getLocation());</span>
+
+<span class="nc" id="L67">    warehousesValidator.checkIfWarehouseCanBeCreatedAtLocation(warehouse, warehousesAtLocation, location);</span>
+
+    // 4️⃣ Capacity must not exceed location maximum
+<span class="nc" id="L70">    LOGGER.debug(&quot;Validating capacity against location maximum&quot;);</span>
+<span class="nc" id="L71">    warehousesValidator.checkForLocationMaxNumberOfWarehouse(warehouse, location);</span>
+
+    // 5️⃣ Stock must fit within capacity
+<span class="nc" id="L74">    LOGGER.debug(&quot;Validating stock capacity&quot;);</span>
+<span class="nc" id="L75">    warehousesValidator.checkForWarehouseCapacity(warehouse);</span>
+
+    // if all went well, create the warehouse
+<span class="nc" id="L78">    LOGGER.infof(&quot;All validations passed. Creating warehouse: %s&quot;,</span>
+<span class="nc" id="L79">            warehouse.getBusinessUnitCode());</span>
+<span class="nc" id="L80">    warehouse.setCreatedAt(LocalDateTime.now());</span>
+<span class="nc" id="L81">    warehouseStore.create(warehouse);</span>
+<span class="nc" id="L82">    LOGGER.infof(&quot;Warehouse created successfully: %s&quot;,</span>
+<span class="nc" id="L83">            warehouse.getBusinessUnitCode());</span>
+<span class="nc" id="L84">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

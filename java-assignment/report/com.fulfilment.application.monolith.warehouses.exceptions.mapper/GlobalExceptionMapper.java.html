@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GlobalExceptionMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java-code-assignment</a> &gt; <a href="index.source.html" class="el_package">com.fulfilment.application.monolith.warehouses.exceptions.mapper</a> &gt; <span class="el_source">GlobalExceptionMapper.java</span></div><h1>GlobalExceptionMapper.java</h1><pre class="source lang-java linenums">package com.fulfilment.application.monolith.warehouses.exceptions.mapper;
+
+import com.fulfilment.application.monolith.fulfillments.exceptions.*;
+import com.fulfilment.application.monolith.warehouses.exceptions.*;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
+import jakarta.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.ext.Provider;
+import org.jboss.logging.Logger;
+
+@Provider
+<span class="fc" id="L13">public class GlobalExceptionMapper implements ExceptionMapper&lt;RuntimeException&gt; {</span>
+
+<span class="fc" id="L15">    private static final Logger LOGGER = Logger.getLogger(GlobalExceptionMapper.class);</span>
+
+    @Context
+    UriInfo uriInfo;
+
+    @Override
+    public Response toResponse(RuntimeException exception) {
+
+<span class="fc bfc" id="L23" title="All 2 branches covered.">        if (exception instanceof WarehouseNotFoundException) {</span>
+<span class="fc" id="L24">            return buildResponse(</span>
+                    Response.Status.NOT_FOUND,
+                    &quot;WAREHOUSE_NOT_FOUND&quot;,
+<span class="fc" id="L27">                    exception.getMessage()</span>
+            );
+        }
+
+<span class="pc bpc" id="L31" title="1 of 2 branches missed.">        if (exception instanceof WareHouseAlreadyExistException) {</span>
+<span class="nc" id="L32">            return buildResponse(</span>
+                    Response.Status.BAD_REQUEST,
+                    &quot;WAREHOUSE_ALREADY_EXISTS&quot;,
+<span class="nc" id="L35">                    exception.getMessage()</span>
+            );
+        }
+
+<span class="fc bfc" id="L39" title="All 2 branches covered.">        if (exception instanceof WarehouseCapacityExceededException) {</span>
+<span class="fc" id="L40">            return buildResponse(</span>
+                    Response.Status.BAD_REQUEST,
+                    &quot;WAREHOUSE_LOCATION_CAPACITY_EXCEEDED&quot;,
+<span class="fc" id="L43">                    exception.getMessage()</span>
+            );
+        }
+
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">        if (exception instanceof InvalidWarehouseStockException) {</span>
+<span class="nc" id="L48">            return buildResponse(</span>
+                    Response.Status.BAD_REQUEST,
+                    &quot;WAREHOUSE_STOCK_CAPACITY_EXCEEDED&quot;,
+<span class="nc" id="L51">                    exception.getMessage()</span>
+            );
+        }
+
+
+
+<span class="fc bfc" id="L57" title="All 2 branches covered.">        if (exception instanceof LocationNotFoundException) {</span>
+<span class="fc" id="L58">            LOGGER.info(&quot;LocationNotFoundException&quot;);</span>
+<span class="fc" id="L59">            return buildResponse(</span>
+                    Response.Status.BAD_REQUEST,
+                    &quot;LOCATION_NOT_FOUND&quot;,
+<span class="fc" id="L62">                    exception.getMessage()</span>
+            );
+        }
+
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        if (exception instanceof WarehouseAlreadyArchivedException) {</span>
+<span class="nc" id="L67">            return buildResponse(</span>
+                    Response.Status.BAD_REQUEST,
+                    &quot;WAREHOUSE_ALREADY_ARCHIVED&quot;,
+<span class="nc" id="L70">                    exception.getMessage()</span>
+            );
+        }
+
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        if (exception instanceof ProductFulfilmentLimitExceededException) {</span>
+<span class="fc" id="L75">            return buildResponse(</span>
+                    Response.Status.BAD_REQUEST,
+                    &quot;PRODUCT_FULFILMENT_LIMIT_EXCEEDED&quot;,
+<span class="fc" id="L78">                    exception.getMessage()</span>
+            );
+        }
+
+<span class="fc bfc" id="L82" title="All 2 branches covered.">        if (exception instanceof StoreFulfilmentLimitExceededException) {</span>
+<span class="fc" id="L83">            return buildResponse(</span>
+                    Response.Status.BAD_REQUEST,
+                    &quot;STORE_FULFILMENT_LIMIT_EXCEEDED&quot;,
+<span class="fc" id="L86">                    exception.getMessage()</span>
+            );
+        }
+
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        if (exception instanceof WarehouseProductLimitExceededException) {</span>
+<span class="fc" id="L91">            return buildResponse(</span>
+                    Response.Status.BAD_REQUEST,
+                    &quot;WAREHOUSE_PRODUCT_LIMIT_EXCEEDED&quot;,
+<span class="fc" id="L94">                    exception.getMessage()</span>
+            );
+        }
+
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">        if (exception instanceof jakarta.validation.ConstraintViolationException) {</span>
+<span class="nc" id="L99">            return buildResponse(</span>
+                    Response.Status.BAD_REQUEST,
+                    &quot;VALIDATION_ERROR&quot;,
+<span class="nc" id="L102">                    exception.getMessage()</span>
+            );
+        }
+
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">        if (exception instanceof IllegalArgumentException) {</span>
+<span class="fc" id="L107">            return buildResponse(</span>
+                    Response.Status.BAD_REQUEST,
+                    &quot;INVALID_REQUEST&quot;,
+<span class="fc" id="L110">                    exception.getMessage()</span>
+            );
+        }
+
+        // 🔥 Fallback for unexpected errors
+<span class="nc" id="L115">        LOGGER.error(&quot;Unexpected error occurred&quot;, exception);</span>
+
+<span class="nc" id="L117">        return buildResponse(</span>
+                Response.Status.INTERNAL_SERVER_ERROR,
+                &quot;INTERNAL_SERVER_ERROR&quot;,
+                &quot;An unexpected error occurred&quot;
+        );
+    }
+
+    private Response buildResponse(Response.Status status,
+                                   String code,
+                                   String message) {
+
+<span class="fc" id="L128">        ApiError error = new ApiError(</span>
+                code,
+                message,
+<span class="fc" id="L131">                status.getStatusCode(),</span>
+<span class="fc" id="L132">                uriInfo.getPath()</span>
+        );
+
+<span class="fc" id="L135">        return Response.status(status)</span>
+<span class="fc" id="L136">                .entity(error)</span>
+<span class="fc" id="L137">                .build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
