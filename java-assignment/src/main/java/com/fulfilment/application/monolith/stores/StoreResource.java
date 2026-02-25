@@ -28,13 +28,14 @@ import org.jboss.logging.Logger;
 @Consumes("application/json")
 public class StoreResource {
 
-  @Inject LegacyStoreManagerGateway legacyStoreManagerGateway;
-
   @Inject
   Event<Store> storeCreatedEvent;
 
   @Inject
   Event<Store> storeUpdatedEvent;
+
+  @Inject
+  Event<Store> storeDeletedEvent;
 
   private static final Logger LOGGER = Logger.getLogger(StoreResource.class.getName());
 
@@ -125,6 +126,9 @@ public class StoreResource {
       throw new WebApplicationException("Store with id of " + id + " does not exist.", 404);
     }
     entity.delete();
+
+    storeDeletedEvent.fire(entity);
+
     return Response.status(204).build();
   }
 
