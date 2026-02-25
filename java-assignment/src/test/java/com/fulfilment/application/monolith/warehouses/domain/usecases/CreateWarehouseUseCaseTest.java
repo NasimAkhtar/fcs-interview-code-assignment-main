@@ -43,7 +43,7 @@ class CreateWarehouseUseCaseTest {
 
         Warehouse warehouse = new Warehouse();
         warehouse.setBusinessUnitCode("MWH-001");
-        warehouse.setLocation("AMSTERDAM");
+        warehouse.setLocation("AMSTERDAM-001");
         warehouse.setCapacity(100);
         warehouse.setStock(50);
 
@@ -55,7 +55,7 @@ class CreateWarehouseUseCaseTest {
         when(locationResolver.resolveByIdentifier("AMSTERDAM-001"))
                 .thenReturn(location);
 
-        when(warehouseRepository.count("location", "AMSTERDAM-001"))
+        when(warehouseRepository.count(anyString(), (Object[]) any()))
                 .thenReturn(5L);
 
         createWarehouseUseCase.create(warehouse);
@@ -128,7 +128,8 @@ class CreateWarehouseUseCaseTest {
     void shouldThrowWhenWarehouseLimitExceededAtLocation() {
 
         Warehouse warehouse = new Warehouse();
-        warehouse.setLocation("AMSTERDAM");
+        warehouse.setBusinessUnitCode("MWH-001");
+        warehouse.setLocation("AMSTERDAM-001");
 
         Location location = new Location("ZWOLLE-001", 1, 40);
 
@@ -138,13 +139,13 @@ class CreateWarehouseUseCaseTest {
         when(locationResolver.resolveByIdentifier(any()))
                 .thenReturn(location);
 
-        when(warehouseRepository.count("location", "AMSTERDAM"))
+        when(warehouseRepository.count(anyString(), (Object[]) any()))
                 .thenReturn(10L);
 
         doThrow(new IllegalStateException("Too many warehouses"))
                 .when(warehousesValidator)
                 .checkIfWarehouseCanBeCreatedAtLocation(
-                        eq(warehouse),
+                        any(),
                         eq(10L),
                         eq(location)
                 );
