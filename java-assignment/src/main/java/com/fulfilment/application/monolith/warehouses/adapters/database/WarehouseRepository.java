@@ -29,7 +29,8 @@ public class WarehouseRepository implements WarehouseStore, PanacheRepository<Db
     LOGGER.infof("Persisting new warehouse: %s", warehouse.getBusinessUnitCode());
     DbWarehouse entity = DbWarehouse.from(warehouse);
     persist(entity);
-    LOGGER.debugf("Warehouse %s persisted successfully", warehouse.getBusinessUnitCode());
+    warehouse.setId(entity.id);
+    LOGGER.debugf("Warehouse %s persisted successfully with id %d", warehouse.getBusinessUnitCode(), entity.id);
   }
 
   @Override

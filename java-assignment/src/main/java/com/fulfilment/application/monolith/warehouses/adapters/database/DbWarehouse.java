@@ -31,6 +31,7 @@ public class DbWarehouse {
 
   public Warehouse toWarehouse() {
     var warehouse = new Warehouse();
+    warehouse.id = this.id;
     warehouse.businessUnitCode = this.businessUnitCode;
     warehouse.location = this.location;
     warehouse.capacity = this.capacity;
@@ -42,6 +43,7 @@ public class DbWarehouse {
 
   public static DbWarehouse from(Warehouse warehouse) {
     DbWarehouse entity = new DbWarehouse();
+    entity.id = warehouse.getId();
     entity.businessUnitCode = warehouse.getBusinessUnitCode();
     entity.location = warehouse.getLocation();
     entity.capacity = warehouse.getCapacity();
@@ -52,6 +54,7 @@ public class DbWarehouse {
   }
 
   public void updateFrom(Warehouse warehouse) {
+    this.id = warehouse.getId();
     this.businessUnitCode = warehouse.getBusinessUnitCode();
     this.location = warehouse.getLocation();
     this.capacity = warehouse.getCapacity();

@@ -6,6 +6,8 @@ import java.util.Objects;
 public class Warehouse {
 
   // unique identifier
+  public Long id;
+
   public String businessUnitCode;
 
   public String location;
@@ -17,6 +19,14 @@ public class Warehouse {
   public LocalDateTime createdAt;
 
   public LocalDateTime archivedAt;
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
 
   public String getBusinessUnitCode() {
     return businessUnitCode;
@@ -71,18 +81,19 @@ public class Warehouse {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Warehouse warehouse = (Warehouse) o;
-    return Objects.equals(businessUnitCode, warehouse.businessUnitCode) && Objects.equals(location, warehouse.location) && Objects.equals(capacity, warehouse.capacity) && Objects.equals(stock, warehouse.stock) && Objects.equals(createdAt, warehouse.createdAt) && Objects.equals(archivedAt, warehouse.archivedAt);
+    return Objects.equals(id, warehouse.id) && Objects.equals(businessUnitCode, warehouse.businessUnitCode) && Objects.equals(location, warehouse.location) && Objects.equals(capacity, warehouse.capacity) && Objects.equals(stock, warehouse.stock) && Objects.equals(createdAt, warehouse.createdAt) && Objects.equals(archivedAt, warehouse.archivedAt);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(businessUnitCode, location, capacity, stock, createdAt, archivedAt);
+    return Objects.hash(id, businessUnitCode, location, capacity, stock, createdAt, archivedAt);
   }
 
   @Override
   public String toString() {
     return "Warehouse{" +
-            "businessUnitCode='" + businessUnitCode + '\'' +
+            "id=" + id +
+            ", businessUnitCode='" + businessUnitCode + '\'' +
             ", location='" + location + '\'' +
             ", capacity=" + capacity +
             ", stock=" + stock +

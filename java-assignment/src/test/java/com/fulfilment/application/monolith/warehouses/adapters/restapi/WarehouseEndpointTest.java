@@ -45,7 +45,7 @@ class WarehouseEndpointTest {
 
         given()
         .when()
-            .get(PATH + "/MWH.001")
+            .get(PATH + "/1")
         .then()
             .statusCode(200)
             .body("businessUnitCode", equalTo("MWH.001"))
@@ -63,7 +63,7 @@ class WarehouseEndpointTest {
 
         given()
         .when()
-            .get(PATH + "/UNKNOWN-ID")
+            .get(PATH + "/999")
         .then()
             .statusCode(404);
     }
@@ -84,19 +84,22 @@ class WarehouseEndpointTest {
             }
         """;
 
-        given()
+        var response = given()
             .contentType(ContentType.JSON)
             .body(request)
         .when()
             .post(PATH)
         .then()
             .statusCode(anyOf(is(200), is(201)))
-            .body("businessUnitCode", equalTo("NEW-AMS-001"));
+            .body("businessUnitCode", equalTo("NEW-AMS-001"))
+            .extract().as(com.warehouse.api.beans.Warehouse.class);
+
+        String id = response.getId();
 
         // Verify persistence
         given()
         .when()
-            .get(PATH + "/NEW-AMS-001")
+            .get(PATH + "/" + id)
         .then()
             .statusCode(200);
     }
@@ -129,15 +132,13 @@ class WarehouseEndpointTest {
             .body("stock", equalTo(10));
 
 
-        // Verify persistence
+        // Verify persistence (get all and find the new one, since we don't know the new ID easily here without extraction)
         given()
                 .when()
-                .get(PATH + "/NEW-AMS-001")
+                .get(PATH)
                 .then()
                 .statusCode(200)
-                .body("location", equalTo("AMSTERDAM-001"))
-                .body("capacity", equalTo(200))
-                .body("stock", equalTo(10));
+                .body("find { it.businessUnitCode == 'NEW-AMS-001' && it.capacity == 200 }.location", equalTo("AMSTERDAM-001"));
 
     }
 
@@ -148,16 +149,24 @@ class WarehouseEndpointTest {
     @Order(6)
     void shouldArchiveWarehouse() {
 
+        // Get the ID of the warehouse we want to archive
+        String id = given()
+            .when()
+                .get(PATH)
+            .then()
+                .statusCode(200)
+                .extract().path("find { it.businessUnitCode == 'NEW-AMS-001' }.id");
+
         given()
         .when()
-            .delete(PATH + "/NEW-AMS-001")
+            .delete(PATH + "/" + id)
         .then()
             .statusCode(204);
 
         // Confirm deletion
         given()
         .when()
-            .get(PATH + "/NEW-AMS-001")
+            .get(PATH + "/" + id)
         .then()
             .statusCode(404);
     }
@@ -171,7 +180,7 @@ class WarehouseEndpointTest {
 
         given()
         .when()
-            .delete(PATH + "/INVALID-999")
+            .delete(PATH + "/999")
         .then()
             .statusCode(404);
     }

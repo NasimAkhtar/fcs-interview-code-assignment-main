@@ -57,9 +57,10 @@ public class WarehouseResourceImpl implements WarehouseResource {
             data.getBusinessUnitCode());
 
     try {
-      createWarehouseUseCase.create(fromWarehouse(data));
+      var domainWarehouse = fromWarehouse(data);
+      createWarehouseUseCase.create(domainWarehouse);
       LOGGER.info("Warehouse created successfully");
-      return data;
+      return toWarehouseResponse(domainWarehouse);
 
     } catch (Exception ex) {
       LOGGER.error("Error while creating warehouse", ex);
@@ -71,29 +72,29 @@ public class WarehouseResourceImpl implements WarehouseResource {
   public Warehouse getAWarehouseUnitByID(String id) {
     LOGGER.debugf("Fetching warehouse by id=%s", id);
 
-    var existing = warehouseRepository.findByBusinessUnitCode(id);
+    var existing = warehouseRepository.findById(Long.valueOf(id));
 
-    if (existing == null) {
-      LOGGER.warnf("Warehouse not found for id=%s", id);
+    if (existing == null || existing.archivedAt != null) {
+      LOGGER.warnf("Warehouse not found or archived for id=%s", id);
       throw new WarehouseNotFoundException("Warehouse not found: " + id);
     }
 
     LOGGER.infof("Warehouse found for id=%s", id);
-    return toWarehouseResponse(existing);
+    return toWarehouseResponse(existing.toWarehouse());
   }
 
   @Override
   public void archiveAWarehouseUnitByID(String id) {
     LOGGER.infof("Archiving warehouse id=%s", id);
 
-    var warehouse = warehouseRepository.findByBusinessUnitCode(id);
+    var warehouse = warehouseRepository.findById(Long.valueOf(id));
 
     if (warehouse == null) {
       LOGGER.warnf("Attempted to archive non-existing warehouse id=%s", id);
       throw new WarehouseNotFoundException("Warehouse not found: " + id);
     }
 
-    archiveWarehouseUseCase.archive(warehouse);
+    archiveWarehouseUseCase.archive(warehouse.toWarehouse());
     LOGGER.infof("Warehouse archived successfully id=%s", id);
   }
 
@@ -120,6 +121,7 @@ public class WarehouseResourceImpl implements WarehouseResource {
   private Warehouse toWarehouseResponse(
       com.fulfilment.application.monolith.warehouses.domain.models.Warehouse warehouse) {
     var response = new Warehouse();
+    response.setId(warehouse.id != null ? warehouse.id.toString() : null);
     response.setBusinessUnitCode(warehouse.businessUnitCode);
     response.setLocation(warehouse.location);
     response.setCapacity(warehouse.capacity);
